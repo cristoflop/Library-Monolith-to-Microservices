@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 
-@RestController
-@RequestMapping("/api/v1/users")
 public class UserController {
 
     private UserService userService;
@@ -105,5 +103,5 @@ public class UserController {
     public UserResponseDto deleteUser(@Parameter(description = "id of user to be deleted") @PathVariable long userId) {
         return this.userService.delete(userId);
     }
-    
+
 }
