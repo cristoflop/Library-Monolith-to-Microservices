@@ -1,21 +1,7 @@
 package es.codeurjc.books.controllers;
 
-import java.util.Collection;
-
-import javax.validation.Valid;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import es.codeurjc.books.dtos.requests.UpdateUserEmailRequestDto;
 import es.codeurjc.books.dtos.requests.UserRequestDto;
-import es.codeurjc.books.dtos.responses.UserCommentResponseDto;
 import es.codeurjc.books.dtos.responses.UserResponseDto;
 import es.codeurjc.books.services.CommentService;
 import es.codeurjc.books.services.UserService;
@@ -26,6 +12,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -115,16 +105,5 @@ public class UserController {
     public UserResponseDto deleteUser(@Parameter(description = "id of user to be deleted") @PathVariable long userId) {
         return this.userService.delete(userId);
     }
-
-    @Operation(summary = "Get all user's comments")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found all user's comments",
-                    content = {@Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = UserCommentResponseDto.class)))})})
-    @GetMapping("/{userId}/comments")
-    public Collection<UserCommentResponseDto> getUserComments(@Parameter(description = "id of user to get comments")
-                                                              @PathVariable long userId) {
-        return this.commentService.getComments(userId);
-    }
-
+    
 }
