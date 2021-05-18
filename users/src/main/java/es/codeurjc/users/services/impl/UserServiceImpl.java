@@ -53,6 +53,9 @@ public class UserServiceImpl implements UserService {
 
     public UserResponseDto delete(long userId) {
         User user = this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if (!CollectionUtils.isEmpty(this.commentService.getComments(userId))) {
+            throw new UserCanNotBeDeletedException();
+        }
         this.userRepository.delete(user);
         return this.mapToUserResponseDto(user);
     }
