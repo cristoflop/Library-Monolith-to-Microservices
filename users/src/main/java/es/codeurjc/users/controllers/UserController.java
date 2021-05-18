@@ -31,6 +31,12 @@ public class UserController {
         return this.userService.findById(userId);
     }
 
+    @GetMapping("/nick/{nick}")
+    public UserResponseDto getUserByName(@Parameter(description = "name of user to be searched")
+                                         @PathVariable String nick) {
+        return this.userService.findByNick(nick);
+    }
+
     @PostMapping("/")
     public UserResponseDto createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
         return this.userService.save(userRequestDto);

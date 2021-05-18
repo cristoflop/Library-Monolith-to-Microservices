@@ -3,12 +3,15 @@ package es.codeurjc.users.services.impl;
 import es.codeurjc.users.dtos.requests.UpdateUserEmailRequestDto;
 import es.codeurjc.users.dtos.requests.UserRequestDto;
 import es.codeurjc.users.dtos.responses.UserResponseDto;
+import es.codeurjc.users.exception.UserCanNotBeDeletedException;
 import es.codeurjc.users.exception.UserNotFoundException;
 import es.codeurjc.users.exception.UserWithSameNickException;
 import es.codeurjc.users.models.User;
 import es.codeurjc.users.repositories.UserRepository;
+import es.codeurjc.users.services.CommentService;
 import es.codeurjc.users.services.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -16,15 +19,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private CommentService commentService;
     private UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, CommentService commentService) {
         this.userRepository = userRepository;
+        this.commentService = commentService;
     }
 
     public Collection<UserResponseDto> findAll() {
         return this.userRepository.findAll().stream()
-                .map(user -> this.mapToUserResponseDto(user))
+                .map(this::mapToUserResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -39,6 +44,11 @@ public class UserServiceImpl implements UserService {
 
     public UserResponseDto findById(long userId) {
         User user = this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return this.mapToUserResponseDto(user);
+    }
+
+    public UserResponseDto findByNick(String nick) {
+        User user = this.userRepository.findByNick(nick).orElseThrow(UserNotFoundException::new);
         return this.mapToUserResponseDto(user);
     }
 
