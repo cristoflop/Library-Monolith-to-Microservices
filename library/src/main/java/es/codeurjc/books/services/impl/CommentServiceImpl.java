@@ -1,24 +1,23 @@
 package es.codeurjc.books.services.impl;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
-import org.dozer.Mapper;
-import org.springframework.stereotype.Service;
-
 import es.codeurjc.books.dtos.requests.CommentRequestDto;
 import es.codeurjc.books.dtos.responses.CommentResponseDto;
 import es.codeurjc.books.dtos.responses.UserCommentResponseDto;
+import es.codeurjc.books.dtos.responses.UserResponseDto;
 import es.codeurjc.books.exceptions.BookNotFoundException;
 import es.codeurjc.books.exceptions.CommentNotFoundException;
 import es.codeurjc.books.exceptions.UserNotFoundException;
 import es.codeurjc.books.models.Book;
 import es.codeurjc.books.models.Comment;
-import es.codeurjc.books.models.User;
 import es.codeurjc.books.repositories.BookRepository;
 import es.codeurjc.books.repositories.CommentRepository;
-import es.codeurjc.books.repositories.UserRepository;
 import es.codeurjc.books.services.CommentService;
+import es.codeurjc.books.services.UserService;
+import org.dozer.Mapper;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -26,22 +25,27 @@ public class CommentServiceImpl implements CommentService {
     private Mapper mapper;
     private CommentRepository commentRepository;
     private BookRepository bookRepository;
-    private UserRepository userRepository;
+    private UserService userService;
 
-    public CommentServiceImpl(Mapper mapper, CommentRepository commentRepository, BookRepository bookRepository,
-                              UserRepository userRepository) {
+    public CommentServiceImpl(Mapper mapper,
+                              CommentRepository commentRepository,
+                              BookRepository bookRepository,
+                              UserService userService) {
         this.mapper = mapper;
         this.commentRepository = commentRepository;
         this.bookRepository = bookRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public CommentResponseDto addComment(long bookId, CommentRequestDto commentRequestDto) {
         Book book = this.bookRepository.findById(bookId).orElseThrow(BookNotFoundException::new);
-        User user = this.userRepository.findByNick(commentRequestDto.getUserNick()).orElseThrow(UserNotFoundException::new);
+
+        UserResponseDto user = this.userService.findByNick(commentRequestDto.getUserNick());
+        if (user == null) new UserNotFoundException();
+
         Comment comment = this.mapper.map(commentRequestDto, Comment.class);
         comment.setBook(book);
-        comment.setUser(user);
+        comment.setUserId(user.getId());
         comment = this.commentRepository.save(comment);
         return this.mapper.map(comment, CommentResponseDto.class);
     }
